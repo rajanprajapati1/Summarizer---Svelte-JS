@@ -1,30 +1,31 @@
-import { SvelteResponse } from "../../../functions/SvelteResponse";
-import { reqGroqAI } from "../../../utils/GroqClient";
-import { summarizeFile } from "../../../functions/FileProcessor";
 import path from "path";
+import { SvelteResponse } from "../../../functions/SvelteResponse";
+import { summarizeFile } from "../../../functions/FileProcessor";
+import { reqGroqAI } from "../../../utils/GroqClient";
 
 export async function GET({ url }) {
-    try {
-        // Get the fileName and fileType from query parameters
-        const fileName = url.searchParams.get("fileName") || "test-file.txt"; // Default to "test-file.txt"
-        const fileType = url.searchParams.get("fileType") || "text"; // Default to "text"
+  try {
+    const fileName = url.searchParams.get("fileName");
+    const fileType = url.searchParams.get("fileType");
 
-        // Construct the file path in the public directory
-        const filePath = path.join(process.cwd(), "public", fileName);
-
-        // Summarize the file
-        const content = await summarizeFile(filePath, fileType);
-        const summarizedContent = await reqGroqAI(content);
-
-        // Respond with summarized content
-        return SvelteResponse({
-            status: 200,
-            response: {
-                results: summarizedContent?.choices[0]?.message?.content,
-            },
-        });
-    } catch (error) {
-        console.error("Error processing the request:", error);
-        return SvelteResponse({ status: 500, response: error.message });
+    if (!fileName || !fileType) {
+      return SvelteResponse({
+        status: 400,
+        response: { error: "Missing fileName or fileType query parameters" },
+      });
     }
+
+    const filePath = path.join(process.cwd(), "public/uploads", fileName);
+    const content = await summarizeFile(filePath, fileType);
+    console.log(content , "content")
+    const summarizedContent = await reqGroqAI(content);
+
+    return SvelteResponse({
+      status: 200,
+      response: { results: summarizedContent?.choices[0]?.message?.content },
+    });
+  } catch (error) {
+    console.error("Error summarizing file:", error);
+    return SvelteResponse({ status: 500, response: error.message });
+  }
 }

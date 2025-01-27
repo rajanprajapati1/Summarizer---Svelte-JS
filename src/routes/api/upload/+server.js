@@ -1,57 +1,55 @@
-import multiparty from "multiparty";
 import fs from "fs";
 import path from "path";
 import { SvelteResponse } from "../../../functions/SvelteResponse";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public");
+const UPLOAD_DIR = path.join(process.cwd(), "public/uploads");
 
 export async function POST({ request }) {
   try {
-    // Ensure the upload directory exists
     if (!fs.existsSync(UPLOAD_DIR)) {
-      fs.mkdirSync(UPLOAD_DIR);
+      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
     }
 
-    const form = new multiparty.Form({
-      uploadDir: UPLOAD_DIR,
-      maxFilesSize: 10 * 1024 * 1024, // Limit file size to 10MB
-    });
+    const contentType = request.headers.get("content-type");
+    if (!contentType || !contentType.includes("multipart/form-data")) {
+      return SvelteResponse({ status: 400, response: "Invalid content type" });
+    }
 
-    // Manually handle the request stream
-    const formData = await new Promise((resolve, reject) => {
-      const reqStream = request.body;
+    const boundary = contentType.split("boundary=")[1];
+    if (!boundary) {
+      return SvelteResponse({ status: 400, response: "Boundary not found" });
+    }
 
-      // Create a readable stream from the request body
-      const reader = reqStream.getReader();
-      const chunks = [];
-      reader.read().then(function processText({ done, value }) {
-        if (done) {
-          // Send the form data to multiparty once the request body is read
-          form.parse(Buffer.concat(chunks), (err, fields, files) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve({ fields, files });
-            }
-          });
-          return;
-        }
-        chunks.push(value);
-        reader.read().then(processText);
-      });
-    });
+    const body = await request.arrayBuffer();
+    const parts = Buffer.from(body)
+      .toString()
+      .split(`--${boundary}`)
+      .filter((part) => part.trim() && part !== `--`);
 
-    // Get the uploaded file
-    const uploadedFile = formData.files.file[0];
-    const filePath = uploadedFile.path;
+    let uploadedFileName;
 
-    // Return response
+    for (const part of parts) {
+      const [headers, content] = part.split("\r\n\r\n");
+      if (!headers.includes("filename")) continue;
+
+      const match = headers.match(/filename="(.+)"/);
+      if (!match) continue;
+
+      const fileName = match[1].trim();
+      const filePath = path.join(UPLOAD_DIR, fileName);
+      uploadedFileName = fileName;
+
+      const fileData = content.split("\r\n").join("");
+      fs.writeFileSync(filePath, Buffer.from(fileData, "binary"));
+    }
+
+    if (!uploadedFileName) {
+      return SvelteResponse({ status: 400, response: "No file uploaded" });
+    }
+
     return SvelteResponse({
       status: 200,
-      response: {
-        message: "File uploaded successfully",
-        filePath: filePath,
-      },
+      response: { message: "File uploaded successfully", fileName: uploadedFileName },
     });
   } catch (error) {
     console.error("Error uploading file:", error);

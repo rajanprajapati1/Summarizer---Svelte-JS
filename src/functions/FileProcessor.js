@@ -48,11 +48,11 @@ async function extractTextFromExcel(filePath) {
 
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-    const limitedData = data.map(row => row.slice(0, 5));
+    const limitedData = data.map(row => row.slice(0, 1));
     const formattedData = limitedData.map(row => {
       return row.join(' | '); 
     }).join('\n');
-
+console.log(limitedData,"limitedData")
     return formattedData;
   } catch (error) {
     console.error("Error reading the Excel file:", error.message);
