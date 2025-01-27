@@ -1,0 +1,31 @@
+{
+	"name": "summarizer",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''"
+	},
+	"devDependencies": {
+		"@fontsource/fira-mono": "^5.0.0",
+		"@neoconfetti/svelte": "^2.0.0",
+		"@sveltejs/adapter-vercel": "^5.5.2",
+		"@sveltejs/kit": "^2.16.0",
+		"@sveltejs/vite-plugin-svelte": "^5.0.0",
+		"autoprefixer": "^10.4.20",
+		"svelte": "^5.0.0",
+		"tailwindcss": "^3.4.17",
+		"vite": "^6.0.0"
+	},
+	"dependencies": {
+		"groq-sdk": "^0.12.0",
+		"lucide-svelte": "^0.474.0",
+		"mammoth": "^1.9.0",
+		"multiparty": "^4.2.3",
+		"pdfjs-dist": "^4.10.38",
+		"xlsx": "^0.18.5"
+	}
+}

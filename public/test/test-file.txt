@@ -1,0 +1,60 @@
+GroqCloud Developer Console
+Fast LLM inference, OpenAI-compatible. Simple to integrate, easy to scale. Start building in minutes.
+
+What’s New: Llama 3.3 70B now available to all users! 🦙 Find out more.
+
+Video cover
+curl
+
+curl https://api.groq.com/openai/v1/chat/completions -s \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $GROQ_API_KEY" \
+-d '{
+"model": "llama-3.3-70b-versatile",
+"messages": [{
+    "role": "user",
+    "content": "Explain the importance of fast language models"
+}]
+}'
+Start building apps on Groq
+Quickstart
+Get up and running with the Groq API in a few minutes.
+
+Create and setup your API Key
+
+Playground
+Experiment with the Groq API
+
+Example Apps
+Check out cool Groq built apps
+
+Developer Resources
+Essential resources to accelerate your development and maximize productivity
+
+Tag
+API Reference
+Explore all API parameters and response attributes
+
+Discord
+Developer Community
+Check out sneak peeks, announcements & get support
+
+Cooking
+API Cookbook
+See code examples and tutorials to jumpstart your app
+
+Lightning
+OpenAI Compatibility
+Compatible with OpenAI's client libraries
+
+The Models
+We’re adding new models all the time and will let you know when a new one comes online. See full details on our Models page.
+
+Meta
+Llama 3, 3.1, 3.2, & LlamaGuard
+Groq
+Llama 3 Groq 8B & 70B Tool Use fine-tune
+Mistral
+Mistral 8x7b
+Google
+Gemma 1 & 2
