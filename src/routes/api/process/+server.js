@@ -16,6 +16,7 @@ export async function GET({ url }) {
     }
 
     const filePath = path.join(process.cwd(), "public/uploads", fileName);
+    console.log(filePath,"path")
     const content = await summarizeFile(filePath, fileType);
     console.log(content , "content")
     const summarizedContent = await reqGroqAI(content);

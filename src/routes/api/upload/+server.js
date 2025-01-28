@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { SvelteResponse } from "../../../functions/SvelteResponse";
+import { detectFileType } from "../../../functions/FileProcessor";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public/uploads");
 
@@ -47,9 +48,11 @@ export async function POST({ request }) {
       return SvelteResponse({ status: 400, response: "No file uploaded" });
     }
 
+    const type=detectFileType(uploadedFileName)
+
     return SvelteResponse({
       status: 200,
-      response: { message: "File uploaded successfully", fileName: uploadedFileName },
+      response: { message: "File uploaded successfully", fileName: uploadedFileName,type: type },
     });
   } catch (error) {
     console.error("Error uploading file:", error);

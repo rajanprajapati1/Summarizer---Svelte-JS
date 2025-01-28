@@ -2,8 +2,8 @@ import fs from "fs/promises";
 import fsn from "fs";
 import mammoth from "mammoth";
 import path from "path";
-import * as pdfjs from 'pdfjs-dist';
-import * as XLSX from 'xlsx';
+import * as pdfjs from "pdfjs-dist";
+import * as XLSX from "xlsx";
 
 // working
 async function extractTextFromPDF(filePath) {
@@ -11,7 +11,8 @@ async function extractTextFromPDF(filePath) {
     // Read the file as a Buffer
     const pdfData = await fsn.promises.readFile(filePath);
     const uint8ArrayData = new Uint8Array(pdfData);
-    const pdfDocument = await pdfjs.getDocument({ data: uint8ArrayData }).promise;
+    const pdfDocument = await pdfjs.getDocument({ data: uint8ArrayData })
+      .promise;
     let text = "";
     for (let i = 1; i <= pdfDocument.numPages; i++) {
       const page = await pdfDocument.getPage(i);
@@ -29,7 +30,7 @@ async function extractTextFromPDF(filePath) {
 async function readTextFile(filePath) {
   if (!fsn.existsSync(filePath)) {
     throw new Error(`File not found: ${fileName}`);
-}
+  }
   try {
     const content = await fs.readFile(filePath, "utf-8");
     return content;
@@ -42,17 +43,26 @@ async function readTextFile(filePath) {
 // wordking for low dataser
 async function extractTextFromExcel(filePath) {
   try {
+    console.log("reached");
     const fileData = await fsn.promises.readFile(filePath);
+    // const stream = fs.createReadStream(filePath);
+    // const chunks = [];
+    // for await (const chunk of stream) {
+    //   chunks.push(chunk);
+    // }
+    // const fileData = Buffer.concat(chunks);
 
-    const workbook = XLSX.read(fileData, { type: 'buffer' });
+    const workbook = XLSX.read(fileData, { type: "buffer" });
 
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-    const limitedData = data.map(row => row.slice(0, 1));
-    const formattedData = limitedData.map(row => {
-      return row.join(' | '); 
-    }).join('\n');
-console.log(limitedData,"limitedData")
+    const limitedData = data.map((row) => row.slice(0, 1));
+    const formattedData = limitedData
+      .map((row) => {
+        return row.join(" | ");
+      })
+      .join("\n");
+    console.log(limitedData, "limitedData");
     return formattedData;
   } catch (error) {
     console.error("Error reading the Excel file:", error.message);
@@ -72,7 +82,6 @@ async function extractTextFromWord(filePath) {
 
 // Main function to summarize files based on type
 export async function summarizeFile(filePath, fileType) {
-
   let content;
   switch (fileType) {
     case "pdf":
@@ -91,4 +100,24 @@ export async function summarizeFile(filePath, fileType) {
       throw new Error("Unsupported file type");
   }
   return content;
+}
+
+
+export function detectFileType(filePath) {
+  const fileExtension = path.extname(filePath).toLowerCase();
+
+  switch (fileExtension) {
+    case ".txt":
+      return "text";
+    case ".xlsx":
+    case ".xls":
+      return "excel";
+    case ".pdf":
+      return "pdf";
+    case ".docx":
+    case ".doc":
+      return "word";
+    default:
+      return "unknown";
+  }
 }
